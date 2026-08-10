@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Live Scoreboard Graphic</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background-color: #ffffff;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    .scoreboard-container {
+      width: 700px;
+      padding: 20px;
+    }
+
+    /* Teams Header Grid */
+    .teams-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 6px;
+    }
+
+    .team-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .team-left {
+      align-items: flex-start;
+      color: #0b6fa4;
+    }
+
+    .team-right {
+      align-items: flex-end;
+      color: #000000;
+    }
+
+    .team-title {
+      font-weight: 900;
+      font-size: 32px;
+      line-height: 1;
+      text-transform: uppercase;
+      letter-spacing: -0.5px;
+    }
+
+    .team-subtitle {
+      font-weight: 500;
+      font-size: 20px;
+      line-height: 1.1;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-top: 2px;
+    }
+
+    /* Main Progress/Score Bar Structure */
+    .bar-wrapper {
+      position: relative;
+      margin-bottom: 8px;
+    }
+
+    .score-bar-outer {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      height: 60px;
+      border: 1px solid #1c3b5e;
+      background-color: #e8e8e8;
+      overflow: hidden;
+    }
+
+    .score-box {
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 36px;
+      font-weight: 400;
+      color: #ffffff;
+      min-width: 60px;
+      transition: width 0.4s ease;
+    }
+
+    .score-left {
+      background-color: #0b6fa4;
+    }
+
+    .score-right {
+      background-color: #000000;
+    }
+
+    /* Center Target Line & Label */
+    .target-marker {
+      position: absolute;
+      left: 50%;
+      top: -10px;
+      bottom: -10px;
+      width: 2px;
+      background-color: #000000;
+      transform: translateX(-50%);
+      z-index: 2;
+    }
+
+    .target-text {
+      text-align: center;
+      font-size: 14px;
+      font-weight: bold;
+      color: #000000;
+      letter-spacing: 0.5px;
+      margin-top: 6px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="scoreboard-container">
+    <!-- Header Section -->
+    <div class="teams-header">
+      <div class="team-info team-left">
+        <span class="team-title">Calapan City</span>
+        <span class="team-subtitle">Pickleball Club</span>
+      </div>
+      <div class="team-info team-right">
+        <span class="team-title">Morning</span>
+        <span class="team-subtitle">Tickle Club</span>
+      </div>
+    </div>
+
+    <!-- Main Score Bar -->
+    <div class="bar-wrapper">
+      <div class="score-bar-outer">
+        <div id="score-ccpc" class="score-box score-left">0</div>
+        <div id="score-mtc" class="score-box score-right">0</div>
+      </div>
+      
+      <!-- Target Marker Line -->
+      <div class="target-marker"></div>
+    </div>
+
+    <!-- Target Win Label -->
+    <div class="target-text">64 to WIN</div>
+  </div>
+
+  <script>
+    const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRndZpCQdvlPD8Pr0XcQMIgshTo7BZ90TOjwpuLTYqm44xyQXekQUgz0oTWyje9J1IKQBWaOTPjLfhU/pub?gid=1090091996&single=true&output=csv';
+    const MAX_SCORE = 126;
+
+    const elCCPC = document.getElementById('score-ccpc');
+    const elMTC = document.getElementById('score-mtc');
+
+    async function fetchScores() {
+      try {
+        // Fetch CSV data with cache busting query param
+        const response = await fetch(`${CSV_URL}&t=${Date.now()}`);
+        const text = await response.text();
+
+        // Split text into rows and columns
+        const rows = text.trim().split('\n');
+        if (rows.length >= 2) {
+          const values = rows[1].split(',').map(val => val.trim());
+
+          const ccpcScore = parseInt(values[0]) || 0;
+          const mtcScore = parseInt(values[1]) || 0;
+
+          updateDisplay(ccpcScore, mtcScore);
+        }
+      } catch (error) {
+        console.error('Error fetching sheet data:', error);
+      }
+    }
+
+    function updateDisplay(ccpc, mtc) {
+      // Update text
+      elCCPC.textContent = ccpc;
+      elMTC.textContent = mtc;
+
+      // Calculate width percentage relative to scale of 126
+      const ccpcPct = Math.min((ccpc / MAX_SCORE) * 100, 100);
+      const mtcPct = Math.min((mtc / MAX_SCORE) * 100, 100);
+
+      elCCPC.style.width = ccpcPct + '%';
+      elMTC.style.width = mtcPct + '%';
+    }
+
+    // Initial fetch on page load
+    fetchScores();
+
+    // Auto-refresh data every 5 seconds
+    setInterval(fetchScores, 5000);
+  </script>
+
+</body>
+</html>
