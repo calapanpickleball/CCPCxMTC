@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Game Schedule & Scoreboard</title>
+  <title>Game Schedule Viewer</title>
   <style>
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: Arial, Helvetica, sans-serif;
+      font-family: Arial, sans-serif;
     }
 
     body {
@@ -23,122 +23,10 @@
       margin: auto;
     }
 
-    /* Scoreboard Graphic Styling */
-    .scoreboard-container {
-      max-width: 700px;
-      margin: 0 auto 30px auto;
-      padding: 20px;
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-    }
-
-    .teams-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-end;
-      margin-bottom: 6px;
-    }
-
-    .team-info {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .team-left {
-      align-items: flex-start;
-      color: #0b6fa4;
-    }
-
-    .team-right {
-      align-items: flex-end;
-      color: #000000;
-    }
-
-    .team-title {
-      font-weight: 900;
-      font-size: 32px;
-      line-height: 1;
-      text-transform: uppercase;
-      letter-spacing: -0.5px;
-    }
-
-    .team-subtitle {
-      font-weight: 500;
-      font-size: 20px;
-      line-height: 1.1;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-top: 2px;
-    }
-
-    .bar-wrapper {
-      position: relative;
-      margin-bottom: 8px;
-    }
-
-    .score-bar-outer {
-      display: flex;
-      justify-content: space-between;
-      width: 100%;
-      height: 60px;
-      border: 1px solid #1c3b5e;
-      background-color: #e8e8e8;
-      overflow: hidden;
-      border-radius: 6px;
-    }
-
-    .score-box {
-      height: 100%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 36px;
-      font-weight: 400;
-      color: #ffffff;
-      min-width: 60px;
-      transition: width 0.4s ease;
-    }
-
-    .score-left {
-      background-color: #0b6fa4;
-    }
-
-    .score-right {
-      background-color: #000000;
-    }
-
-    .target-marker {
-      position: absolute;
-      left: 50%;
-      top: -10px;
-      bottom: -10px;
-      width: 2px;
-      background-color: #000000;
-      transform: translateX(-50%);
-      z-index: 2;
-    }
-
-    .target-text {
-      text-align: center;
-      font-size: 14px;
-      font-weight: bold;
-      color: #000000;
-      letter-spacing: 0.5px;
-      margin-top: 6px;
-    }
-
-    /* Game Schedule Viewer Styling */
     h1 {
-      margin-bottom: 4px;
+      margin-bottom: 16px;
       font-size: 28px;
       color: #111827;
-    }
-
-    h4 {
-      margin-bottom: 16px;
-      color: #4b5563;
-      font-weight: normal;
     }
 
     .filters {
@@ -303,45 +191,11 @@
       .mobile-cards {
         display: block;
       }
-
-      .team-title {
-        font-size: 22px;
-      }
-
-      .team-subtitle {
-        font-size: 14px;
-      }
     }
   </style>
 </head>
 <body>
   <div class="container">
-    
-    <!-- TOP SECTION: Scoreboard Chart -->
-    <div class="scoreboard-container">
-      <div class="teams-header">
-        <div class="team-info team-left">
-          <span class="team-title">Calapan City</span>
-          <span class="team-subtitle">Pickleball Club</span>
-        </div>
-        <div class="team-info team-right">
-          <span class="team-title">Morning</span>
-          <span class="team-subtitle">Tickle Club</span>
-        </div>
-      </div>
-
-      <div class="bar-wrapper">
-        <div class="score-bar-outer">
-          <div id="score-ccpc" class="score-box score-left">0</div>
-          <div id="score-mtc" class="score-box score-right">0</div>
-        </div>
-        <div class="target-marker"></div>
-      </div>
-
-      <div class="target-text">64 to WIN</div>
-    </div>
-
-    <!-- BOTTOM SECTION: Game List View -->
     <h1>CCPC x MTC Dual Meet</h1>
     <h4>August 15, 2026</h4>
 
@@ -363,9 +217,10 @@
   </div>
 
   <script>
-    // Primary CSV Source
+    // Replace this with your published Google Sheets CSV link.
+    // Example format:
+    // https://docs.google.com/spreadsheets/d/e/YOUR_PUBLISHED_ID/pub?output=csv
     const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRndZpCQdvlPD8Pr0XcQMIgshTo7BZ90TOjwpuLTYqm44xyQXekQUgz0oTWyje9J1IKQBWaOTPjLfhU/pub?gid=1085376916&single=true&output=csv";
-    const MAX_SCORE = 126;
 
     let allRows = [];
     let filteredRows = [];
@@ -374,8 +229,6 @@
     const searchInput = document.getElementById("searchInput");
     const content = document.getElementById("content");
     const summary = document.getElementById("summary");
-    const elCCPC = document.getElementById("score-ccpc");
-    const elMTC = document.getElementById("score-mtc");
 
     function parseCSV(text) {
       const rows = [];
@@ -432,13 +285,15 @@
     }
 
     function getPlayerText(row) {
-      return [row.TEAM1, row.TEAM2].join(" ").toLowerCase();
+      return [
+        row.TEAM1,
+        row.TEAM2
+      ].join(" ").toLowerCase();
     }
 
     function populateCategories() {
       const categories = [...new Set(allRows.map(row => row.CATEGORY).filter(Boolean))].sort();
 
-      categoryFilter.innerHTML = '<option value="">All Categories</option>';
       categories.forEach(category => {
         const option = document.createElement("option");
         option.value = category;
@@ -473,32 +328,6 @@
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#039;");
-    }
-
-    function updateScoreChart() {
-      let ccpcScore = 0;
-      let mtcScore = 0;
-
-      // Count scores equal to 11 for Team 1 (CCPC) and Team 2 (MTC)
-      allRows.forEach(row => {
-        if (parseInt(row.TEAM1SCORE, 10) === 11) {
-          ccpcScore++;
-        }
-        if (parseInt(row.TEAM2SCORE, 10) === 11) {
-          mtcScore++;
-        }
-      });
-
-      // Update text
-      elCCPC.textContent = ccpcScore;
-      elMTC.textContent = mtcScore;
-
-      // Update visual bar width percentages
-      const ccpcPct = Math.min((ccpcScore / MAX_SCORE) * 100, 100);
-      const mtcPct = Math.min((mtcScore / MAX_SCORE) * 100, 100);
-
-      elCCPC.style.width = ccpcPct + "%";
-      elMTC.style.width = mtcPct + "%";
     }
 
     function render() {
@@ -551,7 +380,7 @@
 
               <div class="matchup">
                 <div class="team">
-                  <strong>CCPC Team</strong><br />
+                  <strong>Team 1</strong><br />
                   ${escapeHTML(row.TEAM1)}
                   <div class="score">${escapeHTML(row.TEAM1SCORE)}</div>
                 </div>
@@ -559,7 +388,7 @@
                 <div class="vs">VS</div>
 
                 <div class="team">
-                  <strong>MTC Team</strong><br />
+                  <strong>Team 2</strong><br />
                   ${escapeHTML(row.TEAM2)}
                   <div class="score">${escapeHTML(row.TEAM2SCORE)}</div>
                 </div>
@@ -572,12 +401,16 @@
       `;
     }
 
-    async function loadData() {
+    async function loadCSV() {
       try {
-        const response = await fetch(`${CSV_URL}&t=${Date.now()}`);
+        if (!CSV_URL || CSV_URL === "PASTE_YOUR_PUBLISHED_CSV_LINK_HERE") {
+          throw new Error("Please replace CSV_URL with your published Google Sheets CSV link.");
+        }
+
+        const response = await fetch(CSV_URL);
 
         if (!response.ok) {
-          throw new Error("Unable to fetch CSV data.");
+          throw new Error("Unable to fetch CSV. Make sure the Google Sheet is published to the web as CSV.");
         }
 
         const csvText = await response.text();
@@ -590,7 +423,6 @@
         allRows = rowsToObjects(csvRows);
         filteredRows = [...allRows];
 
-        updateScoreChart();
         populateCategories();
         render();
       } catch (error) {
@@ -602,9 +434,13 @@
     categoryFilter.addEventListener("change", applyFilters);
     searchInput.addEventListener("input", applyFilters);
 
+<<<<<<< HEAD
     // Initial load and automatic background updates every 5 seconds
     loadData();
     setInterval(loadData, 500000);
+=======
+    loadCSV();
+>>>>>>> parent of 9b12031 (update)
   </script>
 </body>
 </html>
