@@ -436,6 +436,8 @@
     }
 
     function populateCategories() {
+      // Preserve current user selection before rebuilding options
+      const currentSelection = categoryFilter.value;
       const categories = [...new Set(allRows.map(row => row.CATEGORY).filter(Boolean))].sort();
 
       categoryFilter.innerHTML = '<option value="">All Categories</option>';
@@ -445,6 +447,9 @@
         option.textContent = category;
         categoryFilter.appendChild(option);
       });
+
+      // Restore user selection if it still exists in the categories list
+      categoryFilter.value = currentSelection;
     }
 
     function applyFilters() {
@@ -588,11 +593,10 @@
         }
 
         allRows = rowsToObjects(csvRows);
-        filteredRows = [...allRows];
 
         updateScoreChart();
         populateCategories();
-        render();
+        applyFilters(); // Re-applies active filters instead of resetting filteredRows
       } catch (error) {
         content.className = "error";
         content.innerHTML = escapeHTML(error.message);
@@ -604,7 +608,7 @@
 
     // Initial load and automatic background updates every 5 seconds
     loadData();
-    //setInterval(loadData, 5000);
+    // setInterval(loadData, 5000);
   </script>
 </body>
 </html>
