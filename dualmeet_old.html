@@ -339,9 +339,6 @@
       </div>
 
       <div class="target-text">65 to WIN</div>
-      <div style="text-align:center; margin-top:8px; font-size:12px; color:#6b7280;">
-        Game wins are awarded to the team with the higher final score, even if the game ends before 11 points.
-      </div>
     </div>
 
     <!-- BOTTOM SECTION: Game List View -->
@@ -482,33 +479,15 @@
         .replace(/'/g, "&#039;");
     }
 
-    function getGameWinner(row) {
-      const team1Score = parseInt(row.TEAM1SCORE, 10);
-      const team2Score = parseInt(row.TEAM2SCORE, 10);
-
-      // A game win goes to whoever has the higher final score.
-      // This applies even when a time limit stops the game before 11 points.
-      if (Number.isNaN(team1Score) || Number.isNaN(team2Score)) {
-        return null;
-      }
-
-      if (team1Score > team2Score) return "TEAM1";
-      if (team2Score > team1Score) return "TEAM2";
-
-      // Tied scores do not count as a win.
-      return null;
-    }
-
     function updateScoreChart() {
       let ccpcScore = 0;
       let mtcScore = 0;
 
       allRows.forEach(row => {
-        const winner = getGameWinner(row);
-
-        if (winner === "TEAM1") {
+        if (parseInt(row.TEAM1SCORE, 10) === 11) {
           ccpcScore++;
-        } else if (winner === "TEAM2") {
+        }
+        if (parseInt(row.TEAM2SCORE, 10) === 11) {
           mtcScore++;
         }
       });
